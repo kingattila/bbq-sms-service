@@ -1,15 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
 import twilio from 'twilio';
 
-// Debug: check if env vars are loading
-console.log('🚨 ENV DEBUG:', {
-  SUPABASE_URL: process.env.SUPABASE_URL,
-  SUPABASE_KEY: process.env.SUPABASE_KEY,
-  TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID,
-  TWILIO_PHONE_NUMBER: process.env.TWILIO_PHONE_NUMBER
-});
+// ✅ Full environment dump for Railway "Run with" debug
+console.log('🧪 ENV TEST:', JSON.stringify(process.env, null, 2));
 
-// Supabase and Twilio setup
+// Setup Supabase and Twilio with environment variables
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
@@ -47,7 +42,6 @@ async function checkQueueAndNotify() {
 
   for (const entry of entries) {
     const { id, customer_name, phone_number, requested_barber_id, shop_id } = entry;
-
     if (!phone_number) continue;
 
     const { data: barbers } = await supabase
@@ -89,7 +83,6 @@ async function checkQueueAndNotify() {
         .order('joined_at', { ascending: true });
 
       const position = fullQueue.findIndex((e) => e.id === id);
-
       if (position === 0) {
         shouldNotify = true;
       } else {
