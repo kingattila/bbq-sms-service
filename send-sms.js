@@ -1,12 +1,15 @@
-import dotenv from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
 import twilio from 'twilio';
 
-dotenv.config();
-
+// Railway automatically injects environment variables — no need for dotenv
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-
+console.log('✅ ENV CHECK:', {
+  SUPABASE_URL: process.env.SUPABASE_URL,
+  SUPABASE_KEY: process.env.SUPABASE_KEY,
+  SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY,
+  TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID
+});
 async function sendSMS(to, message) {
   try {
     const result = await twilioClient.messages.create({
@@ -92,7 +95,7 @@ async function checkQueueAndNotify() {
       if (position === 0) {
         shouldNotify = true;
       } else {
-        const avgCutTime = Math.min(...barbers.map((b) => b.average_cut_time || 15)); // fallback avg
+        const avgCutTime = Math.min(...barbers.map((b) => b.average_cut_time || 15));
         const estimatedWait = avgCutTime * position;
         if (estimatedWait <= shop.notify_threshold) {
           shouldNotify = true;
