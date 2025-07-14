@@ -4,6 +4,7 @@ import twilio from 'twilio';
 // Railway automatically injects environment variables — no need for dotenv
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+const supabase = createClient('SUPABASE_URL_HERE', 'SUPABASE_KEY_HERE');
 console.log('✅ ENV CHECK:', {
   SUPABASE_URL: process.env.SUPABASE_URL,
   SUPABASE_KEY: process.env.SUPABASE_KEY,
