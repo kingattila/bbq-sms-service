@@ -1,15 +1,18 @@
 import { createClient } from '@supabase/supabase-js';
 import twilio from 'twilio';
 
-// Railway automatically injects environment variables — no need for dotenv
-const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-const supabase = createClient('SUPABASE_URL_HERE', 'SUPABASE_KEY_HERE');
-console.log('✅ ENV CHECK:', {
+// Debug: check if env vars are loading
+console.log('🚨 ENV DEBUG:', {
   SUPABASE_URL: process.env.SUPABASE_URL,
   SUPABASE_KEY: process.env.SUPABASE_KEY,
-  SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY,
-  TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID
+  TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID,
+  TWILIO_PHONE_NUMBER: process.env.TWILIO_PHONE_NUMBER
 });
+
+// Supabase and Twilio setup
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
+const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+
 async function sendSMS(to, message) {
   try {
     const result = await twilioClient.messages.create({
@@ -43,11 +46,10 @@ async function checkQueueAndNotify() {
   }
 
   for (const entry of entries) {
-    const { id, customer_name, phone_number, requested_barber_id, shop_id, joined_at } = entry;
+    const { id, customer_name, phone_number, requested_barber_id, shop_id } = entry;
 
     if (!phone_number) continue;
 
-    // 1️⃣ Get barbers and shop config
     const { data: barbers } = await supabase
       .from('barbers')
       .select('id, average_cut_time')
@@ -66,7 +68,6 @@ async function checkQueueAndNotify() {
 
     let shouldNotify = false;
 
-    // 2️⃣ If specific barber selected
     if (requested_barber_id) {
       const { data: queueForBarber } = await supabase
         .from('queue_entries')
@@ -79,10 +80,7 @@ async function checkQueueAndNotify() {
       if (queueForBarber && queueForBarber[0]?.id === id) {
         shouldNotify = true;
       }
-    }
-
-    // 3️⃣ If "any barber" selected
-    else {
+    } else {
       const { data: fullQueue } = await supabase
         .from('queue_entries')
         .select('*')
