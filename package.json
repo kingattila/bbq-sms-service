@@ -1,0 +1,14 @@
+{
+  "name": "bbq-sms-service",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "main": "send-sms.js",
+  "scripts": {
+    "start": "node send-sms.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.5",
+    "dotenv": "^17.2.0"
+  }
+}
